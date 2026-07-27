@@ -1,0 +1,33 @@
+# Basic configuration
+myhostname = localhost
+mydomain = local.local
+myorigin = $mydomain
+
+# Network settings
+inet_interfaces = all
+inet_protocols = ipv4
+
+# Mail delivery settings
+mydestination = $myhostname, localhost.$mydomain, $mydomain, 
+home_mailbox = Maildir/
+
+# Disable alias lookups
+alias_maps =
+alias_database =
+
+# Local delivery settings
+# local_recipient_maps =
+# local_transport = local:$myhostname
+
+virtual_transport = lmtp:unix:private/dovecot-lmtp
+
+
+# Network restrictions
+mynetworks = 127.0.0.0/8 172.16.0.0/12
+
+# SASL authentication
+smtpd_sasl_auth_enable = yes
+smtpd_sasl_type = dovecot
+smtpd_sasl_path = private/auth
+smtpd_sasl_security_options = noanonymous
+smtpd_recipient_restrictions = permit_mynetworks, reject_unauth_destination
