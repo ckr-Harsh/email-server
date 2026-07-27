@@ -1,0 +1,13 @@
+services:
+  mailserver:
+    build: .
+    container_name: mailserver
+    ports:
+      - "25:25"
+      - "143:143"
+    volumes:
+      - ./mail:/var/mail
+    environment:
+      - DOMAIN=appsentinels1.in
+      - HOSTNAME=ast.appsentinels1.in
+    restart: unless-stopped
