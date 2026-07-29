@@ -20,6 +20,7 @@ type Response struct {
 
 type CreateUserRequest struct {
     Username string `json:"username"`
+    Password string `json:"password"`
 }
 
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -55,9 +56,17 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    if req.Password == "" {
+        respondJSON(w, http.StatusBadRequest, Response{
+            Status:  "error",
+            Message: "Missing password",
+        })
+        return
+    }
+
     ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
     defer cancel()
-    cmd := exec.CommandContext(ctx, "/create_user.sh", req.Username)
+    cmd := exec.CommandContext(ctx, "/create_user.sh", req.Username, req.Password)
     output, err := cmd.CombinedOutput()
     
     if err != nil {
