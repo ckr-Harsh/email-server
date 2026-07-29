@@ -24,6 +24,9 @@ COPY dovecot/dovecot.conf /etc/dovecot/dovecot.conf
 COPY create_user.sh /create_user.sh
 COPY entrypoint.sh /entrypoint.sh
 
+# Initialize aliases
+RUN touch /etc/postfix/aliases && postalias /etc/postfix/aliases
+
 # Set permissions
 RUN chmod +x /create_user.sh /entrypoint.sh /server && chown -R dovecot:dovecot /etc/dovecot
 

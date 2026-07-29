@@ -25,8 +25,8 @@ if ! id "$USERNAME" >/dev/null 2>&1; then
     # Ensure vmail:mail own it
     chown -R vmail:mail "$MAIL_DIR"
 
-    # Permissions: owner + group can read/write, others can read (optional)
-    chmod -R 777 "$MAIL_DIR"
+    # Permissions: only owner can read/write
+    chmod -R 700 "$MAIL_DIR"
 
     # Set the MAIL environment variable for the user
     mkdir -p "/home/$USERNAME"

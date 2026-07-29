@@ -12,15 +12,11 @@ services:
     environment:
       - DOMAIN=example.com
       - HOSTNAME=mail.example.com
-      - MASTER_PASSWORD=SecretPassword1
+      - MASTER_PASSWORD=${MAIL_MASTER_PASSWORD:-SecretPassword1}
       - EXPIRE_DAYS=7          # Days to keep emails in all folders
       - ENABLE_TEST_EMAIL=true
     restart: unless-stopped
-    cap_add:
-      - SYS_PTRACE
-      - SYS_ADMIN
-    security_opt:
-      - apparmor:unconfined
+
 
   roundcube:
     image: roundcube/roundcubemail:latest
