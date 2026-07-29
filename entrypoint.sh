@@ -29,8 +29,8 @@ ensure_user_maildir() {
     # Ensure vmail:mail own it
     chown -R vmail:mail "$maildir"
 
-    # # Permissions: owner + group can read/write, others can read (optional)
-    chmod -R 777 "$maildir"
+    # # Permissions: only owner can read/write
+    chmod -R 700 "$maildir"
 
     # Ensure home directory and profile
     mkdir -p "$homedir"
@@ -105,4 +105,5 @@ postfix start
 echo "Email server is ready!"
 
 # Keep the container running and show both logs
+touch /var/log/mail.log /var/log/dovecot.log
 tail -f /var/log/mail.log /var/log/dovecot.log

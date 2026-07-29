@@ -8,6 +8,7 @@ import (
     "net/http"
     "os"
     "os/exec"
+    "regexp"
     "strings"
     "time"
 )
@@ -19,6 +20,7 @@ type Response struct {
 
 type CreateUserRequest struct {
     Username string `json:"username"`
+    Password string `json:"password"`
 }
 
 func createUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -45,9 +47,26 @@ func createUserHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    validUsername := regexp.MustCompile(`^[a-zA-Z0-9_.-]+$`)
+    if !validUsername.MatchString(req.Username) {
+        respondJSON(w, http.StatusBadRequest, Response{
+            Status:  "error",
+            Message: "Invalid username format",
+        })
+        return
+    }
+
+    if req.Password == "" {
+        respondJSON(w, http.StatusBadRequest, Response{
+            Status:  "error",
+            Message: "Missing password",
+        })
+        return
+    }
+
     ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
     defer cancel()
-    cmd := exec.CommandContext(ctx, "/create_user.sh", req.Username)
+    cmd := exec.CommandContext(ctx, "/create_user.sh", req.Username, req.Password)
     output, err := cmd.CombinedOutput()
     
     if err != nil {
@@ -77,10 +96,14 @@ func testEmailHandler(w http.ResponseWriter, r *http.Request) {
     if emailTo == "" {
         emailTo = "test"
     }
-    email := emailTo + "@ast.appsentinels1.in"
+    email := emailTo + "@mail.example.com"
 
-    cmd := exec.CommandContext(ctx, "sh", "-c", 
-        "echo 'Hello\n Verification code 343434 \n regards, AppSentinels' | mail -s 'Test Email' "+email)
+    cmd := exec.CommandContext(ctx, "mail", "-s", "Test Email", email)
+    stdin, _ := cmd.StdinPipe()
+    go func() {
+        defer stdin.Close()
+        stdin.Write([]byte("Hello\n Verification code 343434 \n regards, ExampleCorp"))
+    }()
     output, err := cmd.CombinedOutput()
     
     if err != nil {

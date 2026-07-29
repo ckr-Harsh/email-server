@@ -1,21 +1,20 @@
 #!/bin/sh
 set -e
 
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <username>"
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <username> <password>"
     exit 1
 fi
 
 USERNAME=$1
+USER_PASSWORD=$2
 MAIL_DIR="/var/mail/$USERNAME"
 
 # Create user if it doesn't exist
 if ! id "$USERNAME" >/dev/null 2>&1; then
     adduser -D -h "$MAIL_DIR" -s /sbin/nologin "$USERNAME"
-    # Set password to master password
-    if [ -n "$MASTER_PASSWORD" ]; then
-        echo "$USERNAME:$MASTER_PASSWORD" | chpasswd
-    fi
+    # Set the unique password for the user
+    echo "$USERNAME:$USER_PASSWORD" | chpasswd
     usermod -aG mail "$USERNAME"
     echo "Created user $USERNAME"
 
@@ -25,8 +24,8 @@ if ! id "$USERNAME" >/dev/null 2>&1; then
     # Ensure vmail:mail own it
     chown -R vmail:mail "$MAIL_DIR"
 
-    # Permissions: owner + group can read/write, others can read (optional)
-    chmod -R 777 "$MAIL_DIR"
+    # Permissions: only owner can read/write
+    chmod -R 700 "$MAIL_DIR"
 
     # Set the MAIL environment variable for the user
     mkdir -p "/home/$USERNAME"
