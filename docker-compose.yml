@@ -1,0 +1,51 @@
+services:
+  mailserver:
+    build: .
+    container_name: mailserver
+    ports:
+      - "25:25"
+      - "143:143"
+      - "6000:8080" # configure as required
+    volumes:
+      - ./mail:/var/mail
+      # - ./postfix/main.cf:/etc/postfix/main.cf
+    environment:
+      - DOMAIN=example.com
+      - HOSTNAME=mail.example.com
+      - MASTER_PASSWORD=SecretPassword1
+      - EXPIRE_DAYS=7          # Days to keep emails in all folders
+      - ENABLE_TEST_EMAIL=true
+    restart: unless-stopped
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+
+  roundcube:
+    image: roundcube/roundcubemail:latest
+    container_name: roundcube
+    ports:
+      - "80:80"
+    environment:
+      - ROUNDCUBEMAIL_DEFAULT_HOST=tls://mailserver
+      - ROUNDCUBEMAIL_SMTP_SERVER=tls://mailserver
+      - ROUNDCUBEMAIL_SMTP_PORT=25
+      - ROUNDCUBEMAIL_IMAP_PORT=143
+      - ROUNDCUBEMAIL_DB_TYPE=sqlite
+      - ROUNDCUBEMAIL_DB_DIR=/var/roundcube/db
+      - ROUNDCUBEMAIL_DB_NAME=roundcube.sqlite
+    volumes:
+      - roundcube-db:/var/roundcube/db
+      - ./roundcube/config.inc.php:/usr/src/roundcubemail/config/config.inc.php
+    depends_on:
+      - mailserver
+    restart: unless-stopped
+
+networks:
+  default:
+    name: mail-network
+    driver: bridge
+
+volumes:
+  roundcube-db:
