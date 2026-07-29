@@ -95,7 +95,7 @@ $config['smtp_user'] = '%u';  // Uses login (e.g., admin*user)
 $config['smtp_pass'] = '%p';  // Uses login password
 
 // Installer flag — disable in production
-$config['enable_installer'] = true;
+$config['enable_installer'] = false;
 
 // Optional: custom support URL
 $config['support_url'] = '';
