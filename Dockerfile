@@ -20,6 +20,14 @@ COPY --from=builder /app/server /server
 COPY postfix/main.cf /etc/postfix/main.cf
 COPY dovecot/dovecot.conf /etc/dovecot/dovecot.conf
 
+# Enable Postscreen in master.cf
+RUN sed -i -e 's/^smtp      inet/#smtp      inet/' \
+           -e 's/^#smtp      inet  n       -       n       -       1       postscreen/smtp      inet  n       -       n       -       1       postscreen/' \
+           -e 's/^#smtpd     pass/smtpd     pass/' \
+           -e 's/^#dnsblog   unix/dnsblog   unix/' \
+           -e 's/^#tlsproxy  unix/tlsproxy  unix/' \
+           /etc/postfix/master.cf
+
 # Copy scripts
 COPY create_user.sh /create_user.sh
 COPY entrypoint.sh /entrypoint.sh
