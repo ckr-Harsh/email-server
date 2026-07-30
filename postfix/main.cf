@@ -11,9 +11,9 @@ inet_protocols = ipv4
 mydestination = $myhostname, localhost.$mydomain, $mydomain, 
 home_mailbox = Maildir/
 
-# Disable alias lookups
-alias_maps =
-alias_database =
+# Aliases
+alias_maps = hash:/etc/postfix/aliases
+alias_database = hash:/etc/postfix/aliases
 
 # Local delivery settings
 # local_recipient_maps =
@@ -22,8 +22,8 @@ alias_database =
 virtual_transport = lmtp:unix:private/dovecot-lmtp
 
 
-# Network restrictions
-mynetworks = 127.0.0.0/8 172.16.0.0/12
+# Network restrictions (restrict to localhost and docker subnet)
+mynetworks = 127.0.0.0/8 [::1]/128 172.16.0.0/12
 
 # SASL authentication
 smtpd_sasl_auth_enable = yes
@@ -31,3 +31,20 @@ smtpd_sasl_type = dovecot
 smtpd_sasl_path = private/auth
 smtpd_sasl_security_options = noanonymous
 smtpd_recipient_restrictions = permit_mynetworks, reject_unauth_destination
+
+# --- Anti-Spam & Rate Limiting ---
+# Postscreen Settings (DDoS and Zombie bot protection)
+postscreen_greet_action = enforce
+postscreen_dnsbl_action = enforce
+postscreen_dnsbl_sites = zen.spamhaus.org*2, bl.spamcop.net*1
+postscreen_access_list = permit_mynetworks
+
+# Rate Limiting & Error Throttling (Anvil)
+# Limit an IP to 10 connections per minute and 20 messages per minute
+smtpd_client_connection_rate_limit = 10
+smtpd_client_message_rate_limit = 20
+# Force bots to wait 2 seconds after asking for a non-existent user
+smtpd_error_sleep_time = 2s
+smtpd_soft_error_limit = 10
+# Drop the connection immediately if 20 errors are reached
+smtpd_hard_error_limit = 20
