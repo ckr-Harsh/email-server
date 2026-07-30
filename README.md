@@ -72,6 +72,17 @@ For local testing, the server will successfully process outbound messages, but e
 
 ---
 
+## Security & Anti-Flood Protections
+
+This mail server is pre-configured with several active defenses against botnets, DDoS attacks, and spam floods:
+
+- **Postscreen (Zombie Shield)**: Placed in front of the SMTP daemon, it detects impatient botnets that violate the SMTP protocol (e.g., sending commands before the server greets them) and drops their connections instantly.
+- **DNS Blacklists (DNSBL)**: Postscreen automatically checks incoming IPs against `zen.spamhaus.org` and `bl.spamcop.net`. Known spam sources are blocked before they can send mail.
+- **Rate Limiting**: IPs are restricted to 10 connections and 20 messages per minute.
+- **Tarpitting (Dictionary Attack Defense)**: If a bot guesses fake usernames, the server will deliberately pause for 2 seconds before rejecting them (`smtpd_error_sleep_time`), destroying the speed of brute-force dictionary attacks. After 20 errors, the connection is forcefully severed.
+
+---
+
 ## Troubleshooting
 
 - **Check Mailserver Logs:**
