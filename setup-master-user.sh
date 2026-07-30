@@ -6,7 +6,7 @@ mkdir -p /etc/dovecot
 
 # Set default master password if not provided
 if [ -z "$MASTER_PASSWORD" ]; then
-    MASTER_PASSWORD="Appsentinels1"
+    MASTER_PASSWORD="SecretPassword1"
     echo "Using default master password: $MASTER_PASSWORD"
     echo "WARNING: Please set MASTER_PASSWORD environment variable in production"
 fi
